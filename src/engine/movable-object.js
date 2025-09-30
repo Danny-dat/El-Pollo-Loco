@@ -40,7 +40,7 @@
     }
 
     hit() {
-      this.energy = Math.max(0, this.energy - 1);
+      this.energy = Math.max(0, this.energy - 5);
       if (this.energy > 0) this.lastHit = Date.now();
     }
 
