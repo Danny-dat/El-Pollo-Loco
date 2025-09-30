@@ -4,10 +4,10 @@
       super();
 
       this.height = 400;
-      this.width  = 400;
+      this.width = 400;
       this.y = 50;
 
-      this.firstContact   = false;
+      this.firstContact = false;
       this.hadFirstContact = false;
 
       this.offset = { top: 20, left: 80, right: 80, bottom: 0 };
@@ -64,6 +64,26 @@
     get W() {
       return this.world || window.world || Game.world;
     }
+    
+    /**
+     * Safely plays an audio file once, handling potential AbortErrors.
+     * @param {HTMLAudioElement} audio - The audio element to play.
+     */
+    playOnce(audio) {
+        if (this.W && this.W.sound) {
+            audio.currentTime = 0;
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    if (error.name === 'AbortError') {
+                        // This is expected, do nothing.
+                    } else {
+                        console.error("Audio playback error:", error);
+                    }
+                });
+            }
+        }
+    }
 
     /**
      * Starts movement/logic (60 FPS) and animation/sound loop (200 ms)
@@ -108,10 +128,8 @@
       if (w.sound === false) {
         w.mexico_sound.pause();
       } else {
-        // Reset briefly on call to prevent "no sound first time" in some browsers
         if (w.mexico_sound.paused) {
-          w.mexico_sound.currentTime = 0;
-          w.mexico_sound.play();
+          this.playOnce(w.mexico_sound); // USE SAFE PLAY FUNCTION
         }
       }
     }
@@ -142,11 +160,7 @@
 
     /** Boss hurt sound */
     chickenBossSound() {
-      const w = this.W;
-      if (w && w.sound === true) {
-        this.chickenBoss_sound.currentTime = 0;
-        this.chickenBoss_sound.play();
-      }
+      this.playOnce(this.chickenBoss_sound); // USE SAFE PLAY FUNCTION
     }
 
     /** If character dead: stop sounds */
@@ -171,8 +185,7 @@
         if (w.sound === true) {
           w.finalBoss_sound.volume = 0.8;
           if (w.finalBoss_sound.paused) {
-            w.finalBoss_sound.currentTime = 0;
-            w.finalBoss_sound.play();
+            this.playOnce(w.finalBoss_sound); // USE SAFE PLAY FUNCTION
           }
         } else {
           w.finalBoss_sound.pause();

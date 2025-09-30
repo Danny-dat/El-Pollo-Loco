@@ -130,79 +130,85 @@
       return !!(this.world?.keybord?.RIGHT || this.world?.keybord?.LEFT);
     }
 
-playOnce(audio) {
-  if (!this.world?.sound) return;
-  audio.currentTime = 0;
-  const playPromise = audio.play();
-  if (playPromise !== undefined) {
-    playPromise.catch(error => {
-    });
-  }
-}
+    playOnce(audio) {
+        if (!this.world?.sound) return;
+        audio.currentTime = 0;
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                if (error.name === 'AbortError') {
+                    // This error is expected when rapidly playing/pausing sounds.
+                    // We can safely ignore it.
+                    return;
+                }
+                console.error('Audio playback error:', error);
+            });
+        }
+    }
 
     // ===== Sound control (slow walking loop) =====
-updateWalkSound() {
-  if (!this.world?.sound) {
-    if (!this.walking_sound.paused) this.walking_sound.pause();
-    return;
-  }
+    updateWalkSound() {
+      if (!this.world?.sound) {
+        if (!this.walking_sound.paused) this.walking_sound.pause();
+        return;
+      }
 
-  if (this.isMoving && !this.isAboveGround()) {
-    if (this.walking_sound.paused) {
-      this.playOnce(this.walking_sound);
+      if (this.isMoving && !this.isAboveGround()) {
+        if (this.walking_sound.paused) {
+          this.playOnce(this.walking_sound);
+        }
+      } else {
+        if (!this.walking_sound.paused) this.walking_sound.pause();
+      }
     }
-  } else {
-    if (!this.walking_sound.paused) this.walking_sound.pause();
-  }
-}
 
     // ===== Animation automaton =====
-updateAnimation() {
-  if (this.isDead()) {
-    this.playDeadAnimation();
-    return;
-  }
-  if (this.isHurt()) {
-    this.playAnimation(this.IMAGES_HURT);
-    this.playOnce(this.hurt_sound);
-    return;
-  }
+    updateAnimation() {
+      if (this.isDead()) {
+        this.playDeadAnimation();
+        return;
+      }
+      if (this.isHurt()) {
+        this.playAnimation(this.IMAGES_HURT);
+        this.playOnce(this.hurt_sound);
+        return;
+      }
 
-  if (this.isAboveGround()) {
-    if (this._forceJumpRestart) {
-      this.currentImage = 0;
-      this._forceJumpRestart = false;
-    }
-    this.playAnimation(this.IMAGES_JUMPING);
-    return;
-  }
+      if (this.isAboveGround()) {
+        if (this._forceJumpRestart) {
+          this.currentImage = 0;
+          this._forceJumpRestart = false;
+        }
+        this.playAnimation(this.IMAGES_JUMPING);
+        return;
+      }
 
-  if (this.isMoving) {
-    this.registerAction();
-    this.playAnimation(this.IMAGES_WALKING);
-    if (!this.sleep_sound.paused) this.sleep_sound.pause();
-    return;
-  }
-
-
-      // On the ground:
       if (this.isMoving) {
         this.registerAction();
         this.playAnimation(this.IMAGES_WALKING);
-        this.sleep_sound.pause();
+        if (!this.sleep_sound.paused) this.sleep_sound.pause();
         return;
       }
 
       // Standing still on the ground -> Idle/Long-Idle after timeout
-if (this.isIdleTimedOut()) {
-  this.playAnimation(this.IMAGES_LONGSTAND);
-  if (this.world?.sound && this.sleep_sound.paused) {
-      const playPromise = this.sleep_sound.play();
-      if (playPromise !== undefined) {
-          playPromise.catch(error => {}); // silently ignore errors
+      if (this.isIdleTimedOut()) {
+          this.playAnimation(this.IMAGES_LONGSTAND);
+          if (this.world?.sound && this.sleep_sound.paused) {
+              const playPromise = this.sleep_sound.play();
+              if (playPromise !== undefined) {
+                  playPromise.catch(error => {
+                      if (error.name === 'AbortError') {
+                          // This error is expected, safe to ignore
+                          return;
+                      }
+                      console.error('Audio playback error:', error);
+                  });
+              }
+          }
+      } else {
+        this.playAnimation(this.IMAGES_STAND);
+        if (!this.sleep_sound.paused) this.sleep_sound.pause();
       }
-  }
-}
     }
 
     playDeadAnimation() {
@@ -220,17 +226,17 @@ if (this.isIdleTimedOut()) {
       if (this.canJump())      { this.triggerJump(); }
     }
 
-triggerJump() {
-  this.playOnce(this.jump_sound);
-  this.currentImage = 0;
-  this.jump();
-  this.registerAction();
-  if (!this.sleep_sound.paused) this.sleep_sound.pause();
-}
+    triggerJump() {
+      this.playOnce(this.jump_sound);
+      this.currentImage = 0;
+      this.jump();
+      this.registerAction();
+      if (!this.sleep_sound.paused) this.sleep_sound.pause();
+    }
 
     moveRight() {
       if (this.world?.sound && this.walking_sound.paused && !this.isAboveGround()) {
-        this.walking_sound.play();
+        this.walking_sound.play().catch(e => { if(e.name !== "AbortError") throw e; });
       }
       super.moveRight();
       this.otherDiretion = false; // (compatibility)
@@ -238,7 +244,7 @@ triggerJump() {
 
     moveLeft() {
       if (this.world?.sound && this.walking_sound.paused && !this.isAboveGround()) {
-        this.walking_sound.play();
+        this.walking_sound.play().catch(e => { if(e.name !== "AbortError") throw e; });
       }
       super.moveLeft();
       this.otherDiretion = true; // (compatibility)
