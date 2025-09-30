@@ -141,44 +141,49 @@ playOnce(audio) {
 }
 
     // ===== Sound control (slow walking loop) =====
-    updateWalkSound() {
-      if (!this.world?.sound) {
-        this.walking_sound.pause();
-        return;
-      }
-if (this.isMoving && !this.isAboveGround()) {
-  if (this.walking_sound.paused) {
-    const playPromise = this.walking_sound.play();
-    if (playPromise !== undefined) {
-      playPromise.catch(error => {}); // silently ignore errors
-    }
+updateWalkSound() {
+  if (!this.world?.sound) {
+    if (!this.walking_sound.paused) this.walking_sound.pause();
+    return;
   }
-} else {
-        this.walking_sound.pause();
-      }
+
+  if (this.isMoving && !this.isAboveGround()) {
+    if (this.walking_sound.paused) {
+      this.playOnce(this.walking_sound);
     }
+  } else {
+    if (!this.walking_sound.paused) this.walking_sound.pause();
+  }
+}
 
     // ===== Animation automaton =====
-    updateAnimation() {
-      if (this.isDead()) {
-        this.playDeadAnimation();
-        return;
-      }
-      if (this.isHurt()) {
-        this.playAnimation(this.IMAGES_HURT);
-        this.playOnce(this.hurt_sound);
-        return;
-      }
+updateAnimation() {
+  if (this.isDead()) {
+    this.playDeadAnimation();
+    return;
+  }
+  if (this.isHurt()) {
+    this.playAnimation(this.IMAGES_HURT);
+    this.playOnce(this.hurt_sound);
+    return;
+  }
 
-      // In the air -> always jump frames, never idle/sleep
-      if (this.isAboveGround()) {
-        if (this._forceJumpRestart) {
-          this.currentImage = 0;
-          this._forceJumpRestart = false;
-        }
-        this.playAnimation(this.IMAGES_JUMPING);
-        return;
-      }
+  if (this.isAboveGround()) {
+    if (this._forceJumpRestart) {
+      this.currentImage = 0;
+      this._forceJumpRestart = false;
+    }
+    this.playAnimation(this.IMAGES_JUMPING);
+    return;
+  }
+
+  if (this.isMoving) {
+    this.registerAction();
+    this.playAnimation(this.IMAGES_WALKING);
+    if (!this.sleep_sound.paused) this.sleep_sound.pause();
+    return;
+  }
+
 
       // On the ground:
       if (this.isMoving) {
@@ -215,13 +220,13 @@ if (this.isIdleTimedOut()) {
       if (this.canJump())      { this.triggerJump(); }
     }
 
-    triggerJump() {
-      this.playOnce(this.jump_sound);
-      this.currentImage = 0;     // start jump frames “fresh”
-      this.jump();
-      this.registerAction();
-      this.sleep_sound.pause();
-    }
+triggerJump() {
+  this.playOnce(this.jump_sound);
+  this.currentImage = 0;
+  this.jump();
+  this.registerAction();
+  if (!this.sleep_sound.paused) this.sleep_sound.pause();
+}
 
     moveRight() {
       if (this.world?.sound && this.walking_sound.paused && !this.isAboveGround()) {
