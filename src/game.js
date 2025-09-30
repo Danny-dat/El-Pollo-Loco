@@ -142,7 +142,7 @@
   /**
    * Quer/Hochformat prüfen und UI anpassen.
    */
-function checkOrientation() {
+  function checkOrientation() {
     const startButton = document.getElementById('startButton');
     const handy = document.getElementById('handy');
     const mk = document.getElementById('mobileKeysNone');
