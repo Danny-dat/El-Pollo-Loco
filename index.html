@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<html translate="no">
+<!---it´s me Danny -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EL POLLO LOCO</title>
+
+ <!-- Favicon & Fonts -->
+  <link rel="icon" href="./assets/kopf.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playwrite+MX:wght@100..400&display=swap" rel="stylesheet" />
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body>
+  <h1>EL POLLO LOCO</h1>
+
+  <div class="container" id="game-container">
+    <canvas id="canvas" width="720" height="480"></canvas>
+
+    <div class="infoNote" id="infoNote">
+      <span>PRESS D = THROW BOTTLE</span>
+      <span>PRESS SPACE = JUMP</span>
+      <span>PRESS → = RUN RIGHT</span>
+      <span>PRESS ← = RUN LEFT</span>
+    </div>
+
+    <div class="info">
+      <img onclick="infoNote()" src="assets/mouse-and-keyboard-8938335_640.png" alt="Info" />
+      <img class="volume" id="volume" onclick="volume()" src="assets/lautsprecher.png" alt="Volume" />
+    </div>
+
+    <div class="mobileKeysNone no-select" id="mobileKeysNone">
+      <div class="mobileKeys">
+        <div><button id="left" class="mobileButten">&lt;</button></div>
+        <div><button id="right" class="mobileButten">&gt;</button></div>
+      </div>
+      <div class="mobileKeysTwo">
+        <div><button id="jump" class="mobileButten">^</button></div>
+        <div>
+          <button id="throw" class="mobileButten">
+            <img src="assets/img/6_salsa_bottle/salsa_bottle.png" alt="Bottle" />
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="startPolloLoco" class="startPolloLoco">
+      <button class="startButton" id="startButton" onclick="start()">START</button>
+      <img class="start" src="assets/img/9_intro_outro_screens/start/startscreen_2.png" alt="Startscreen" />
+    </div>
+
+    <div id="gameOver" class="gameOver">
+      <button class="startButton" onclick="restartGame()">RESTART</button>
+      <img class="over" src="assets/img/9_intro_outro_screens/game_over/game over.png" alt="Game Over" />
+    </div>
+
+    <div id="nextLevel" class="nextGamePolloLoco">
+      <img src="assets/img/9_intro_outro_screens/start/startscreen_1.png" alt="Next" />
+      <button class="neustart" onclick="restartGame()">RESTART</button>
+    </div>
+
+    <div class="handy" id="handy">
+      <img src="assets/phone.png" alt="Rotate Device" />
+    </div>
+    <div id="handy" style="display: none;">
+      <p>Bitte drehe dein Gerät ins Querformat, um zu spielen.</p>
+    </div>
+  </div>
+
+  <div class="Bottom-links">
+    <a href="impressum.html">Impressum</a>
+  </div>
+
+  <!-- ====================== SCRIPTS (file:// kompatibel) ====================== -->
+  <!-- 1) Globaler Namespace -->
+  <script defer src="./src/core/namespace.js"></script>
+
+  <!-- 2) Engine (Basisklassen zuerst) -->
+  <script defer src="./src/engine/drawable-object.js"></script>
+  <script defer src="./src/engine/movable-object.js"></script>
+  <script defer src="./src/engine/throwable-object.js"></script>
+
+  <!-- 3) Environment & Core-Bausteine -->
+  <script defer src="./src/environment/background-object.js"></script>
+  <script defer src="./src/environment/worldTwo.js"></script>
+  <script defer src="./src/utils/World.render.js"></script>
+  <script defer src="./src/utils/World.throwing.js"></script>
+  <script defer src="./src/environment/cloud.js"></script>
+  <script defer src="./src/core/input.js"></script>
+  <script defer src="./src/core/world.js"></script>
+
+  <!-- 4) Entities -->
+  <script defer src="./src/entities/character.js"></script>
+  <script defer src="./src/entities/chicken.js"></script>
+  <script defer src="./src/entities/smallChicken.js"></script>
+  <script defer src="./src/entities/endBoss.js"></script>
+
+  <!-- 5) Items -->
+  <script defer src="./src/items/coin.js"></script>
+  <script defer src="./src/items/bottle.js"></script>
+
+  <!-- 6) UI -->
+  <script defer src="./src/ui/status-bar.js"></script>
+  <script defer src="./src/ui/coin-bar.js"></script>
+  <script defer src="./src/ui/bottle-bar.js"></script>
+  <script defer src="./src/ui/boss-bar.js"></script>
+
+  <!-- 7) Level -->
+  <script defer src="./src/levels/level.js"></script>
+  <script defer src="./src/levels/level1.js"></script>
+
+  <!-- 8) Game + Einstieg -->
+  <script defer src="./src/game.js"></script>
+</body>
+</html>

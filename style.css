@@ -1,0 +1,321 @@
+/* ============== RESET ============== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+
+/* ===== Layout-Variablen (skalieren mit Viewport & Safe-Area) ===== */
+:root{
+  --safe-top:  env(safe-area-inset-top, 0px);
+  --safe-right:env(safe-area-inset-right,0px);
+  --safe-bottom:env(safe-area-inset-bottom,0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+
+  --headerH: clamp(28px, 6.5vw, 72px);
+  --footerH: clamp(20px, 4.5vw, 40px);
+  --gapY: 8px;                 /* Luft über/unter der Bühne */
+  --btnRadius: 12px;
+}
+
+/* ============== PAGE ============== */
+body{
+  display:flex;
+  position: relative;
+  flex-direction:column;
+  align-items:center;
+  font-family:'Permanent Marker', cursive;
+
+  background-image:url('./assets/img/wueste.jpg');
+  background-position:center;
+  background-size:cover;
+
+  min-height:100svh;          /* stabile mobile Höhe */
+  overflow:hidden;            /* keine Scrollbar */
+  padding: var(--safe-top) var(--safe-right) var(--safe-bottom) var(--safe-left);
+
+  -webkit-tap-highlight-color:transparent;
+  -webkit-touch-callout:none;
+  user-select:none;
+}
+
+/* ============== HEADER (fix) ============== */
+h1{
+  position:fixed;
+  top: calc(4px + var(--safe-top));
+  left:50%;
+  transform:translateX(-50%);
+  z-index:20;
+  margin:0;
+  padding:0 10px;
+  height:var(--headerH);
+  line-height:var(--headerH);
+  white-space:nowrap;
+
+  font-family:"Playwrite MX", cursive;
+  font-weight:700;
+  font-size:clamp(20px, 6vw, 50px);
+  color:#fff;
+  text-shadow:2px 2px 4px #000;
+  pointer-events:none;
+}
+
+/* ============== STAGE / CONTAINER ============== */
+/* 3:2 Bühne – maximal groß, ohne zu schneiden oder zu scrollen */
+/* Bühne/Canvas exakt zwischen Header (oben) und Footer (unten) zentrieren */
+.container{
+  position: absolute;
+  /* zwischen Header und Footer einspannen */
+  top: calc(var(--headerH) + var(--gapY) + var(--safe-top));
+  bottom: calc(var(--footerH) + var(--gapY) + var(--safe-bottom));
+
+  /* horizontal zentrieren */
+  left: 0;
+  right: 0;
+  margin: auto;                 /* vertikal + horizontal mittig */
+
+  /* Größe: max. 3:2 ohne Beschnitt, nie größer als Viewport */
+  aspect-ratio: 3 / 2;
+  max-height: calc(100svh - var(--headerH) - var(--footerH)
+                   - (2 * var(--gapY)) - var(--safe-top) - var(--safe-bottom));
+  width: min(
+    720px,
+    95vw,
+    calc( var(--_availH, 0px) * 3 / 2 )
+  );
+}
+
+/* Hilfsvariable für die Breitenberechnung auf Basis der verfügbaren Höhe */
+@supports (height: 1svh){
+  .container{
+    --_availH: calc(100svh - var(--headerH) - var(--footerH)
+                    - (2 * var(--gapY)) - var(--safe-top) - var(--safe-bottom));
+  }
+}
+
+/* Canvas füllt die Bühne */
+canvas{
+  position:relative;
+  z-index:1;
+  width:100%;
+  height:100%;
+  display:block;
+  background:#000;
+}
+
+/* ============== OVERLAYS ============== */
+.start,
+.gameOver,
+.nextGamePolloLoco,
+.over{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+}
+
+.over{ z-index:2; }
+.start{ z-index:3; }
+.gameOver{ z-index:10; display:none; }      /* per JS ein/aus */
+.nextGamePolloLoco{ z-index:9; display:none; }
+
+.start img,
+.nextGamePolloLoco img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: fill;          /* <— nicht gestreckt, kein Beschnitt */
+}
+
+.gameOver img{
+  width:100%;
+  height:100%;
+   display: block;
+  object-fit:contain;                         /* nie verzerren */
+}
+
+/* Game-Over: dunkler Scrim + zentrierter Button */
+.gameOver::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  background: rgba(0,0,0);
+  z-index:0;
+}
+
+/* ============== BUTTONS ============== */
+.startButton,
+.neustart,
+.next{
+  position:absolute;
+  z-index:11;
+  border:0;
+  border-radius:var(--btnRadius);
+  cursor:pointer;
+  background:#ffea00;
+  color:#000;
+  box-shadow:0 2px 0 rgba(0,0,0,.2);
+  padding:10px 18px;
+  min-height:44px;
+  min-width:140px;
+  font-family:'Permanent Marker', cursive;
+  transition:transform .08s ease, background-color .2s ease;
+}
+
+/* Start/Restart mittig oben */
+.startButton{
+  font-size:clamp(18px, 4.5vw, 36px);
+  top:16%;
+  left:50%;
+  transform:translate(-50%, -50%);
+}
+.startButton:active{ transform:translate(-50%, -50%) scale(.98); }
+
+/* Neustart (Next-Screen) unten mittig */
+.neustart{
+  font-size:clamp(16px, 3.2vw, 28px);
+  bottom: max(10%, calc(10% + var(--safe-bottom)));
+  left:50%;
+  transform:translateX(-50%);
+}
+.neustart:active{ transform:translateX(-50%) scale(.98); }
+
+/* Optionaler Next-Button */
+.next{
+  font-size:clamp(14px, 2.6vw, 20px);
+  top:15%;
+  left:50%;
+  transform:translateX(-50%);
+  background:#bdbdbd;
+}
+
+/* Hover nur auf Desktop */
+@media (hover:hover) and (pointer:fine){
+  .startButton:hover, .neustart:hover { background:#d0ff00; }
+  .next:hover { background:#d9d9d9; }
+}
+
+/* ============== INFO/ICONS (oben rechts) ============== */
+.info{
+  position:absolute;
+  top:8px;
+  right:8px;
+  z-index:6;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.info img{
+  height:clamp(22px, 3.6vw, 35px);
+  width:auto;
+  cursor:pointer;
+}
+.volume{
+  height:clamp(22px, 3.6vw, 30px);
+  width: clamp(22px, 3.6vw, 30px);
+}
+
+/* Tastaturhilfe */
+.infoNote{
+  position:absolute;
+  z-index:12;
+  inset:50% auto auto 50%;
+  transform:translate(-50%, -50%);
+  min-width:min(90%, 420px);
+  max-width:90%;
+  background:#f5f5f5;
+  color:#000;
+  padding:12px 16px;
+  border:1px solid #000;
+  border-radius:14px;
+  display:none;
+  text-align:center;
+  box-shadow:0 6px 24px rgba(0,0,0,.25);
+}
+.infoNote span{ display:block; margin:6px 0; }
+
+/* Optionaler Drehhinweis */
+.handy img{
+  position:absolute;
+  z-index:6;
+  height:100px;
+  width:100px;
+  top:40%;
+  left:50%;
+  transform:translate(-50%, -50%);
+}
+
+/* ============== MOBILE CONTROLS ============== */
+.mobileKeysNone{ display:none; }             /* default aus */
+@media (any-pointer:coarse){ .mobileKeysNone{ display:block; } }
+
+.mobileKeysNone{
+  position:absolute;
+  inset:auto 0 8px 0;
+  z-index:6;
+  width:100%;
+  pointer-events:none;                       /* Container durchklickbar */
+}
+
+.mobileKeys,
+.mobileKeysTwo{
+  position:absolute;
+  bottom: max(8px, var(--safe-bottom));
+  display:flex;
+  align-items:center;
+  gap:18px;
+  pointer-events:auto;                       /* Buttons klickbar */
+}
+.mobileKeys{ left:12px; }
+.mobileKeysTwo{ right:12px; }
+
+.mobileButten{
+  height:clamp(44px, 7.2vw, 64px);          /* kleiner auf S8 */
+  width: clamp(44px, 7.2vw, 64px);
+  background:#ffea00;
+  border-radius:999px;
+  border:0;
+  font-size:clamp(22px, 5vw, 32px);
+  display:inline-flex;
+  justify-content:center;
+  align-items:center;
+  box-shadow:0 2px 0 rgba(0,0,0,.2);
+  transition:transform .06s ease, background-color .2s ease;
+}
+.mobileButten:active{ transform:scale(.97); }
+.mobileButten img{
+  height:70%;
+  width:70%;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+/* auf sehr schmalen Geräten nochmals kompakter (Galaxy S8) */
+@media (max-width: 760px){
+  .mobileKeys, .mobileKeysTwo { gap: 12px; }
+  .mobileButten{
+    height:clamp(38px, 6.2vw, 46px);
+    width: clamp(38px, 6.2vw, 46px);
+    font-size:clamp(18px, 4.4vw, 26px);
+  }
+  .startButton{ font-size:clamp(16px, 4.2vw, 28px); top:18%; }
+}
+
+/* ============== FOOTER (fix) ============== */
+.Bottom-links{
+  position:fixed;
+  left: var(--safe-left);
+  right: var(--safe-right);
+  bottom: var(--safe-bottom);
+  z-index:15;
+  height:var(--footerH);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding-bottom:4px;
+}
+.Bottom-links a{
+  font-family:'Permanent Marker', cursive;
+  font-size:clamp(14px, 2.6vw, 24px);
+  color:#fff;
+  text-decoration:none;
+  text-shadow:2px 2px 4px #000;
+}
+.Bottom-links a:hover{ color:#ffea00; }
