@@ -25,7 +25,7 @@
     }
 
     /**
-     * Prozent setzen und passendes Bild wählen.
+     * Set percentage and select the corresponding image.
      * @param {number} percentage
      */
     setPercentage(percentage) {
@@ -33,12 +33,12 @@
       const path = this.IMAGES[this.resolveImageIndex()];
       this.img = this.imageCache[path];
 
-      // Vertikale Leiste gespiegelt darstellen (wie zuvor genutzt)
+      // Display vertical bar mirrored (as previously used)
       this.otherDirection = true;
-      this.otherDiretion  = true; // Alias für Alt-Code
+      this.otherDiretion  = true; // Alias for legacy code
     }
 
-    /** Bildindex anhand des Prozentwerts */
+    /** Image index based on percentage value */
     resolveImageIndex() {
       if (this.percentage >= 100) return 5;
       if (this.percentage >= 80)  return 4;

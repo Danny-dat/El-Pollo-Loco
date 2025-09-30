@@ -8,26 +8,26 @@
   /** @type {Game.World} */
   let world;
 
-  /** Eingaben (früher "Keyboard") */
+  /** Inputs (formerly "Keyboard") */
   const keyboard = new Game.Input();
 
-  /** Ton-Status (false = Sound an) */
+  /** Sound status (false = sound on) */
   let isMuted = false;
 
   /**
-   * Initialisiert das UI/Canvas, lädt Mute-Status aus LocalStorage.
+   * Initializes the UI/canvas, loads mute status from LocalStorage.
    */
   function init() {
     canvas = document.getElementById('canvas');
 
-    // Mute-Status aus dem Storage ziehen (string -> boolean)
+    // Load mute status from storage (string -> boolean)
     isMuted = localStorage.getItem('isGameMuted') === 'true';
     updateVolumeIcon();
     checkOrientation();
   }
 
   /**
-   * Startet das Spiel: Startscreen ausblenden, Level & World initialisieren.
+   * Starts the game: hides the start screen, initializes level & world.
    */
   function start() {
     const startPolloLoco = document.getElementById('startPolloLoco');
@@ -35,7 +35,7 @@
 
     closInfo();
 
-    // Falls deine Level-Initialisierung global ist, so belassen:
+    // If your level initialization is global, leave it as is:
     if (typeof initLevel === 'function') {
       initLevel();
     } else if (typeof Game.initLevel === 'function') {
@@ -47,11 +47,11 @@
     world = new Game.World(canvas, keyboard);
     window.world = world;
     Game.world = world;
-    world.sound = !isMuted; // Soundzustand anwenden
+    world.sound = !isMuted; // Apply sound state
   }
 
   /**
-   * Mute umschalten, speichern und Icon aktualisieren.
+   * Toggle mute, save state, and update the icon.
    */
   function volume() {
     isMuted = !isMuted;
@@ -64,7 +64,7 @@
   }
 
   /**
-   * Icon entsprechend Mute-Status setzen.
+   * Set icon according to mute status.
    */
   function updateVolumeIcon() {
     const volumeIcon = document.getElementById('volume');
@@ -74,14 +74,14 @@
   }
 
   /**
-   * Komplett neu laden.
+   * Fully reload.
    */
   function reStart() {
     window.location.reload();
   }
 
   /**
-   * „Soft“ neu starten (Intervals killen, wieder starten).
+   * “Soft” restart (kill intervals, then restart).
    */
   function restartGame() {
     const next = document.getElementById('nextLevel');
@@ -93,14 +93,14 @@
   }
 
   /**
-   * Alle Intervals grob beenden.
+   * Roughly clear all intervals.
    */
   function clearAllIntervals() {
     for (let i = 1; i < 9999; i++) window.clearInterval(i);
   }
 
   /**
-   * Info-Hinweis verbergen.
+   * Hide info note.
    */
   function closInfo() {
     const n = document.getElementById('infoNote');
@@ -108,7 +108,7 @@
   }
 
   /**
-   * Info-Hinweis umschalten.
+   * Toggle info note.
    */
   function infoNote() {
     const n = document.getElementById('infoNote');
@@ -117,7 +117,7 @@
   }
 
   /**
-   * Touch-Controls für Mobile.
+   * Touch controls for mobile.
    */
   function mobilRun() {
     const bind = (id, ev, fn) => {
@@ -140,7 +140,7 @@
   }
 
   /**
-   * Quer/Hochformat prüfen und UI anpassen.
+   * Check orientation (portrait/landscape) and adjust UI.
    */
   function checkOrientation() {
     const startButton = document.getElementById('startButton');
@@ -164,7 +164,7 @@
     }
   }
 
-  // Tastatur-Events (classic keyCode beibehalten)
+  // Keyboard events (keep classic keyCode)
   window.addEventListener('keydown', (e) => {
     if (e.keyCode === 39) keyboard.RIGHT = true;
     if (e.keyCode === 37) keyboard.LEFT  = true;
@@ -179,11 +179,11 @@
     if (e.keyCode === 68) keyboard.D     = false;
   });
 
-  // Init nach DOM-Load & Größenwechsel beobachten
+  // Init after DOM load & observe resize
   window.addEventListener('DOMContentLoaded', init);
   window.addEventListener('resize', checkOrientation);
 
-  // --- Funktionen für onclick in HTML global verfügbar machen ---
+  // --- Make functions available for onclick in HTML ---
   window.start = start;
   window.volume = volume;
   window.infoNote = infoNote;

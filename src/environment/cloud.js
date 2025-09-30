@@ -17,7 +17,7 @@
     }
 
     /**
-     * Einfache Parallax-Bewegung nach links; bei -2000 wieder nach rechts versetzen.
+     * Simple parallax movement to the left; reset to the right when reaching -2000.
      */
     animate() {
       setInterval(() => {

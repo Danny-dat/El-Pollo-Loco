@@ -1,4 +1,3 @@
-// src/entities/Chicken.js
 (function (Game) {
   class Chicken extends Game.MovableObject {
     constructor() {
@@ -29,7 +28,7 @@
       this.animate();
     }
 
-    /** Bewegung + Animation */
+    /** Movement + animation */
     animate() {
       setInterval(() => {
         if (this.isDead()) {

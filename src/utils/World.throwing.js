@@ -3,15 +3,15 @@
   if (!Game.WorldThrowing) Game.WorldThrowing = {};
 
   /**
-   * Darf der Spieler gerade eine Flasche werfen?
-   * (Keyboard D, mind. 1 Flasche im Inventar, nicht bereits am Werfen)
+   * Is the player currently allowed to throw a bottle?
+   * (Keyboard D, at least 1 bottle in inventory, not already throwing)
    */
   Game.WorldThrowing.iCanThrow = function (w) {
     return !!(w?.keybord?.D) && w.bottleValue > 0 && !w.isThrowingBottle;
   };
 
   /**
-   * Pipeline für Kollisionen der geworfenen Flaschen:
+   * Collision pipeline for thrown bottles:
    * 1) Boss  2) SmallChicken  3) Chicken
    */
   Game.WorldThrowing.updateThrownBottles = function (w) {
@@ -59,7 +59,7 @@
     });
   };
 
-  /** Hilfsfunktion: erste zerbrochene Flasche aus der Liste entfernen */
+  /** Helper function: remove the first broken bottle from the list */
   Game.WorldThrowing._removeBrokenBottle = function (w) {
     const i = w.throwableObject.findIndex(b => b.isBroken);
     if (i > -1) w.throwableObject.splice(i, 1);

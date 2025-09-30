@@ -44,7 +44,7 @@
       if (this.energy > 0) this.lastHit = Date.now();
     }
 
-    isHurt() { return (Date.now() - this.lastHit) / 1000 < 1; }
+    isHurt() { return (Date.now() - this.lastHit) / 200 < 1; }
     isDead() { return this.energy === 0; }
 
     playAnimation(images) {

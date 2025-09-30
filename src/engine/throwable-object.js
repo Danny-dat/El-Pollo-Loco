@@ -36,12 +36,12 @@
       this.animate();
     }
 
-    /** Flasche werfen */
+    /** Throw the bottle */
     throw() {
       this.speedY = 20;
       this.applygravity();
 
-      // sicherstellen, dass kein doppeltes Interval läuft
+      // Ensure no duplicate interval is running
       if (this.throwInterval) clearInterval(this.throwInterval);
 
       this.throwInterval = setInterval(() => {
@@ -49,18 +49,18 @@
         if (this.isBroken) {
           this.stopBottle();
         } else {
-          this.x += 10; // einfache Flugbahn nach rechts
+          this.x += 10; // simple trajectory to the right
         }
       }, 25);
     }
 
-    /** Flasche/Gravitation stoppen */
+    /** Stop bottle / gravity */
     stopBottle() {
       if (this.applygravityInterval) clearInterval(this.applygravityInterval);
       if (this.throwInterval)       clearInterval(this.throwInterval);
     }
 
-    /** Einschlag am Boden prüfen */
+    /** Check impact on the ground */
     bottleFallsOnTheFloor() {
       if (this.y >= 350) {
         this.isBroken = true;

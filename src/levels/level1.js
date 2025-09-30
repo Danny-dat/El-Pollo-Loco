@@ -16,7 +16,7 @@
         new Game.Cloud(), new Game.Cloud(), new Game.Cloud(), new Game.Cloud(),
         new Game.Cloud(), new Game.Cloud(), new Game.Cloud(), new Game.Cloud()
       ],
-      // backgroundObjects (Parallax-Streifen)
+      // backgroundObjects (parallax layers)
       [
         new Game.BackgroundObject('assets/img/5_background/layers/air.png', -719 * 2),
         new Game.BackgroundObject('assets/img/5_background/layers/3_third_layer/1.png', -719 * 2),
@@ -67,6 +67,6 @@
   }
 
   Game.initLevel = initLevel;
-  // Kompatibilität zu altem Code:
+  // compatibility with legacy code:
   window.initLevel = initLevel;
 })(window.Game);

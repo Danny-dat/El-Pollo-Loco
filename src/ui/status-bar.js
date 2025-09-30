@@ -24,14 +24,14 @@
       this.setPercentage(100);
     }
 
-    /** Prozent setzen + Bild aktualisieren */
+    /** Set percentage + update image */
     setPercentage(percentage) {
       this.percentage = Math.max(0, Math.min(100, percentage));
       const path = this.IMAGES[this.resolveImageIndex()];
       this.img = this.imageCache[path];
     }
 
-    /** Index anhand des Prozentwerts (0,20,40,60,80,100) */
+    /** Index based on percentage (0,20,40,60,80,100) */
     resolveImageIndex() {
       if (this.percentage === 100) return 5;
       if (this.percentage > 80)    return 4;

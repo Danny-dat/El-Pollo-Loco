@@ -45,17 +45,25 @@
     }
 
     // ---------- UTIL ----------
-    playIfSound(audio) {
-      if (this.sound && audio) { audio.currentTime = 0; audio.play(); }
+playIfSound(audio) {
+  if (this.sound && audio) {
+    audio.currentTime = 0;
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {
+      });
     }
+  }
+}
 
-    /**
-     * Stomp-Erkennung mit „Band“-Check + Vor-Frame-Fußposition.
-     * - Muss fallen (speedY < 0)
-     * - horizontale Überlappung (AABB)
-     * - Fuß kreuzt zwischen prevBottom und curBottom die Gegner-Oberkante ODER
-     *   befindet sich noch im oberen Band des Gegners (robust bei Low-FPS-Physik)
-     */
+/**
+ * Stomp detection with "band" check + previous-frame foot position.
+ * - Must be falling (speedY < 0)
+ * - Horizontal overlap (AABB)
+ * - Foot crosses the enemy’s top edge between prevBottom and curBottom OR
+ *   is still within the enemy’s upper band (robust for low-FPS physics)
+ */
+
     isStompOn(enemy, prevBottom, curBottom) {
       const eTop  = enemy.y + enemy.offset.top;
       const eLeft = enemy.x + enemy.offset.left;
@@ -69,11 +77,13 @@
 
       const tol = 6;
 
-      // 1) echte Kanten-Kreuzung vom Vor- zum aktuellen Frame
+    // 1) actual edge crossing from previous to current frame
+    
       const crossedTop = (prevBottom <= eTop + tol) && (curBottom >= eTop - tol);
 
-      // 2) oder „im oberen Band“ (bis zur Mitte + Toleranz), falls Physik-Loop seltener tickt
-      const topBandMax = eTop + enemy.height * 0.55 + 14; // 55% + kleine Reserve
+      // 2) or "in the upper band" (up to the middle + tolerance), if the physics loop ticks less frequently
+
+      const topBandMax = eTop + enemy.height * 0.55 + 14; // 55% + small buffer
       const insideTopBand = curBottom <= topBandMax;
 
       return crossedTop || insideTopBand;
@@ -91,7 +101,7 @@
         if (this.bossLife <= 0) setTimeout(() => this.nextLevel?.(), 2000);
       }, 50);
 
-      // Stomp-Check mit prevBottom-Tracking (60 FPS)
+      // Stomp check with prevBottom tracking (60 FPS)
       setInterval(() => this.updateChickenStomp(), 1000 / 60);
     }
 
@@ -139,23 +149,23 @@
     }
 
 updateChickenStomp() {
-  // aktuelle/letzte Fußposition (Bottom der Char-Hitbox)
+  // current/last foot position (bottom of the character hitbox)
   const curBottom  = this.character.y + this.character.height - this.character.offset.bottom;
   const prevBottom = (this.character._prevBottom ?? curBottom);
 
-  // kleiner Cooldown, um mehrfach-Treffer im selben Frame zu vermeiden
+  // small cooldown to prevent multiple hits in the same frame
+
   const now = performance.now();
   this._hitCooldownUntil ??= 0;
 
-  // beide Gruppen prüfen
+  // both enemy groups
   [this.level.enemies, this.level.smallChicken].forEach((group) => {
     for (let i = 0; i < group.length; i++) {
       const ch = group[i];
       if (!this.character.isColliding(ch)) continue;
 
       if (this.isStompOn(ch, prevBottom, curBottom)) {
-        // --- STOMP: von oben getroffen ---
-        // Char kurz über dem Gegner „einrasten“, dann hochfedern
+        // --- STOMP: from above onto the enemy ---
         const enemyTop = ch.y + (ch.offset?.top ?? 0);
         this.character.y = enemyTop - (this.character.height - this.character.offset.bottom) - 1;
 
@@ -172,31 +182,31 @@ updateChickenStomp() {
           if (idx > -1) group.splice(idx, 1);
         }, 500);
 
-        this._hitCooldownUntil = now + 80;       // kurzer Entprellschutz
-        break;                                   // nur ein Gegner pro Tick
+        this._hitCooldownUntil = now + 80;       // short debounce
+        break;                                   // only one enemy per tick
       } else {
-        // --- KEIN Stomp -> Schaden für den Spieler (seitlich/aufwärts) ---
+        // --- NOT a stomp -> damage the player (sideways/upwards) ---
         if (now >= this._hitCooldownUntil) {
           this.character.hit();
           this.stadusBar.setPercentage(this.character.energy);
-          this._hitCooldownUntil = now + 200;    // nicht sofort wieder
+          this._hitCooldownUntil = now + 200;    // prevent immediate repeat
         }
         break;
       }
     }
   });
 
-  // prevBottom für das nächste Frame speichern
+  // store prevBottom for next frame
   this.character._prevBottom = curBottom;
 }
 
-/** true, wenn der Char beim Fallen die Gegner-Oberkante kreuzt (Stomp) */
+/** true if the character crosses the enemy’s top edge while falling (stomp) */
 isStompOn(enemy, prevBottom, curBottom) {
   const enemyTop = enemy.y + (enemy.offset?.top ?? 0);
-  const falling  = this.character.speedY < 0;        // in deiner Physik < 0 = fällt
-  const EPS      = 6;                                 // Toleranz gegen Flimmern
+  const falling  = this.character.speedY < 0;        // in your physics < 0 = falling
+  const EPS      = 6;                                 // tolerance for flickering
 
-  // Vorher unter/oberhalb? Wir wollen: vorher über der Oberkante, jetzt auf/unter ihr.
+  // Previously below/above? We want: previously above the top, now on/below it.
   return falling
       && prevBottom <= enemyTop + EPS
       && curBottom  >= enemyTop - EPS;
@@ -208,7 +218,7 @@ isStompOn(enemy, prevBottom, curBottom) {
       requestAnimationFrame(() => this.draw());
     }
 
-    // ---------- Kleinzeug ----------
+    // ---------- Misc ----------
     iCanThrow() { return Game.WorldThrowing.iCanThrow(this); }
   }
 

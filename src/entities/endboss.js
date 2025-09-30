@@ -60,23 +60,23 @@
       this.animate();
     }
 
-    /** Bequemer Zugriff auf die aktuelle World-Instanz */
+    /** Convenient access to the current World instance */
     get W() {
       return this.world || window.world || Game.world;
     }
 
     /**
-     * Startet Bewegung/Logik (60 FPS) und Animations-/Soundloop (200 ms)
+     * Starts movement/logic (60 FPS) and animation/sound loop (200 ms)
      */
     animate() {
-      // Bewegung/Verfolgung
+      // Movement / chasing
       setInterval(() => {
         if (this.hadFirstContact) {
           this.bossRanUntiltheEnd();
         }
       }, 1000 / 60);
 
-      // Animation + Sounds
+      // Animation + sounds
       setInterval(() => {
         this.checkMexicoSound();
         this.checkFinalBossSound();
@@ -84,7 +84,7 @@
       }, 200);
     }
 
-    /** Prüft, ob eine der geworfenen Flaschen den Boss trifft */
+    /** Checks if any thrown bottles hit the boss */
     bossGetsHit() {
       const w = this.W;
       if (!w) return false;
@@ -95,20 +95,20 @@
       return isHurt;
     }
 
-    /** Charakter tot? */
+    /** Is the character dead? */
     energIsAtZero() {
       const w = this.W;
       return !!w && w.character.energy <= 0;
     }
 
-    /** Mexico-Sound steuern */
+    /** Controls Mexico sound */
     checkMexicoSound() {
       const w = this.W;
       if (!w) return;
       if (w.sound === false) {
         w.mexico_sound.pause();
       } else {
-        // beim Aufruf immer kurz resetten verhindert "kein Ton beim ersten Mal" in manchen Browsern
+        // Reset briefly on call to prevent "no sound first time" in some browsers
         if (w.mexico_sound.paused) {
           w.mexico_sound.currentTime = 0;
           w.mexico_sound.play();
@@ -116,13 +116,13 @@
       }
     }
 
-    /** Final-Boss Sound abhängig von Status */
+    /** Final boss sound depending on status */
     checkFinalBossSound() {
       this.bossIsDead();
       this.characterSeesBoss();
     }
 
-    /** Wählt passende Animationsframes */
+    /** Chooses the appropriate animation frames */
     bossAnimation() {
       const w = this.W;
       if (!w) return;
@@ -140,7 +140,7 @@
       }
     }
 
-    /** Boss-Schmerzenssound */
+    /** Boss hurt sound */
     chickenBossSound() {
       const w = this.W;
       if (w && w.sound === true) {
@@ -149,7 +149,7 @@
       }
     }
 
-    /** Wenn Char tot: Sounds stoppen */
+    /** If character dead: stop sounds */
     bossIsDead() {
       const w = this.W;
       if (!w) return;
@@ -159,7 +159,7 @@
       }
     }
 
-    /** Sichtkontakt Boss ↔ Charakter, Sounds/State umschalten */
+    /** Boss ↔ character line of sight, toggle sounds/state */
     characterSeesBoss() {
       const w = this.W;
       if (!w) return;
@@ -182,7 +182,7 @@
       }
     }
 
-    /** Boss bewegt sich auf den Charakter zu, bis besiegt */
+    /** Boss moves toward the character until defeated */
     bossRanUntiltheEnd() {
       const w = this.W;
       if (!w) return;

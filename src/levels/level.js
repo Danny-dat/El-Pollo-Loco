@@ -1,7 +1,7 @@
 // src/levels/Level.js
 (function (Game) {
   /**
-   * Repräsentiert ein Level mit Gegnern, Umgebung und Items.
+   * Represents a level with enemies, environment, and items.
    */
   class Level {
     constructor(enemies, clouds, backgroundObjects, coin, bottle, endboss, smallChicken) {
@@ -13,12 +13,12 @@
       /** @type {Game.Endboss[]}        */ this.endboss = endboss;
       /** @type {Game.SmallChicken[]}   */ this.smallChicken = smallChicken;
 
-      /** Bis wohin der Spieler laufen darf (Kamera/Level-Ende) */
+      /** Maximum X position the player can run to (camera/level end) */
       this.level_end_x = 1530;
     }
 
     /**
-     * Entfernt eine Münze aus dem Level.
+     * Removes a coin from the level.
      * @param {Game.Coin} coin
      */
     removeCoin(coin) {

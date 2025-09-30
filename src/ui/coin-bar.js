@@ -25,14 +25,14 @@
       this.setPercentage(0);
     }
 
-    /** Prozent setzen + Bild aktualisieren */
+    /** Set percentage + update image */
     setPercentage(percentage) {
       this.percentage = Math.max(0, Math.min(100, percentage));
       const path = this.IMAGES[this.resolveImageIndex()];
       this.img = this.imageCache[path];
     }
 
-    /** Index aus Prozent ableiten (0,20,40,60,80,100) */
+    /** Derive index from percentage (0,20,40,60,80,100) */
     resolveImageIndex() {
       return Game.utils.percentageToIndex(this.percentage);
     }

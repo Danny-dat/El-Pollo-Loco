@@ -7,14 +7,14 @@
       this.currentImage = 0;
       this.x = -1000;
       this.y = 250;
-      // Falls Subklassen width/height setzen – gut.
-      // Sonst fallbacken wir beim Zeichnen auf natürliche Bildgröße.
+      // If subclasses set width/height – good.
+      // Otherwise, fallback to natural image size when drawing.
       this.width = this.width ?? 0;
       this.height = this.height ?? 0;
     }
 
     /**
-     * Ein einzelnes Bild laden.
+     * Load a single image.
      * @param {string} path
      */
     loadImage(path) {
@@ -25,7 +25,7 @@
     }
 
     /**
-     * Bild zeichnen (mit Fallback auf natürliche Größe, falls width/height 0).
+     * Draw image (with fallback to natural size if width/height is 0).
      * @param {CanvasRenderingContext2D} ctx
      */
     draw(ctx) {
@@ -36,7 +36,7 @@
     }
 
     /**
-     * Mehrere Bilder vorladen und cachen.
+     * Preload and cache multiple images.
      * @param {string[]} arr
      */
     loadImages(arr) {

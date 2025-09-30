@@ -30,7 +30,7 @@
       this.moveLeft();
     }
 
-    /** Animation/Bewegung */
+    /** Animation / movement */
     animate() {
       setInterval(() => {
         if (this.isDead()) {

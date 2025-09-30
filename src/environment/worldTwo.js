@@ -1,21 +1,21 @@
 // src/environment/worldTwo.js
 (function (Game) {
   class WorldTwo {
-    /** Flag, damit Game-Over nicht mehrfach getriggert wird */
+    /** Flag to prevent Game-Over from triggering multiple times */
     gameOverDisplayed = false;
 
     constructor() {
       this.play();
     }
 
-    /** prüft periodisch den Game-Over-Zustand */
+    /** Periodically checks the Game-Over state */
     play() {
       setInterval(() => this.gameOver(), 1000);
     }
 
-    /** Game-Over-Overlay ein-/ausblenden */
+    /** Show/hide the Game-Over overlay */
     gameOver() {
-      // Sowohl ID als auch Klasse akzeptieren
+      // Accept both ID and class
       const el =
         document.getElementById("gameOver") ||
         document.querySelector(".gameOver");
@@ -29,9 +29,9 @@
       }
     }
 
-    /** Character tot? Dann Game Over einmalig anzeigen */
+    /** If the character is dead, display Game Over once */
     isCharacterDead() {
-      if (!this.character) return; // falls noch nicht gesetzt
+      if (!this.character) return; // in case not yet set
       if (!this.gameOverDisplayed && this.character.energy <= 0) {
         this.gameOverDisplayed = true;
         this.gameOver();
@@ -39,18 +39,18 @@
       }
     }
 
-    /** Next-Level-Screen zeigen */
+    /** Show the Next-Level screen */
     nextLevel() {
       const el = document.getElementById("nextLevel");
       if (el) el.style.display = "flex";
     }
 
-    /** Münzsound abspielen (sofern aktiv) */
+    /** Play coin sound (if enabled) */
     playCoinSound() {
       if (this.sound === true) this.coin_sound?.play();
     }
 
-    /** Kollisionen mit Coins prüfen + UI updaten */
+    /** Check collisions with coins + update UI */
     coinStatus() {
       if (!this.level || this.coinValue > 100) return;
 
@@ -63,7 +63,7 @@
       });
     }
 
-    /** Kollisionen mit sammelbaren Flaschen prüfen + UI updaten */
+    /** Check collisions with collectible bottles + update UI */
     bottleValueStatus() {
       if (!this.level || this.bottleValue >= 100) return;
 
@@ -79,7 +79,7 @@
     }
 
     /**
-     * Flasche werfen: Objekt erzeugen, Inventar reduzieren, Flag setzen.
+     * Throw a bottle: create object, reduce inventory, set flag.
      * @returns {Game.ThrowableObject}
      */
     bottleStatus() {
@@ -96,13 +96,13 @@
       return bottle;
     }
 
-    /** Geworfene Flasche nach kurzer Zeit entfernen */
+    /** Remove thrown bottle after a short delay */
     removeThrowableObject(index) {
       setTimeout(() => {
         if (typeof index === "number") {
           this.throwableObject.splice(index, 1);
         } else {
-          // falls kein Index übergeben: erste zerbrochene/erste entfernen
+          // if no index provided: remove first broken/first in list
           const i = this.throwableObject.findIndex((b) => b.isBroken);
           if (i > -1) this.throwableObject.splice(i, 1);
           else this.throwableObject.shift?.();
@@ -112,7 +112,7 @@
       }, 1250);
     }
 
-    /** Wurf auslösen, ggf. Boss direkt treffen, Bottle wieder entfernen */
+    /** Trigger throw, possibly hit boss directly, remove bottle */
     checkThrowObject() {
       if (this.iCanThrow && this.iCanThrow()) {
         const bottle = this.bottleStatus();

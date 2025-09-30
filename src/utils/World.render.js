@@ -2,12 +2,12 @@
 (function (Game) {
   if (!Game.WorldRender) Game.WorldRender = {};
 
-  /** Haupt-Draw-Funktion: rendert eine World-Instanz auf ihr Canvas */
+  /** Main draw function: renders a World instance onto its canvas */
   Game.WorldRender.draw = function (w) {
     const ctx = w.ctx;
     ctx.clearRect(0, 0, w.canvas.width, w.canvas.height);
 
-    // Welt-Layer (mit Kamera)
+    // World layers (with camera)
     ctx.translate(w.camera_x, 0);
     addObjectsToMap(w, w.level.backgroundObjects);
     addObjectsToMap(w, w.level.clouds);
@@ -20,7 +20,7 @@
     addToMap(w, w.bottleBar);
     if (w.level.endboss[0]?.hadFirstContact) addToMap(w, w.bossBar);
 
-    // Spielfiguren & Projektile (mit Kamera)
+    // Player characters & projectiles (with camera)
     ctx.translate(w.camera_x, 0);
     addToMap(w, w.character);
     addObjectsToMap(w, w.level.coin);
@@ -31,7 +31,7 @@
     ctx.translate(-w.camera_x, 0);
   };
 
-  // ------- helpers (gekapselt in diesem Modul) -------
+  // ------- helpers (encapsulated in this module) -------
   function addObjectsToMap(w, list) {
     list.forEach((o) => addToMap(w, o));
   }
@@ -40,7 +40,7 @@
     if (mo.otherDiretion) flipImage(w, mo);
     mo.draw(w.ctx);
 
-    // optionaler Hitbox-Debug:
+    // optional hitbox debug:
     if (window.DEBUG_HITBOX) debugHitbox(w, mo);
 
     if (mo.otherDiretion) flipImageBack(w, mo);

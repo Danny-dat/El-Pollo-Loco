@@ -14,7 +14,7 @@
       this.loadImage(this.IMAGES_COIN[0]);
       this.loadImages(this.IMAGES_COIN);
 
-      // Position & Größe
+      // Position & size
       this.x = Math.random() * -1400 + Math.random() * 1800;
       this.y = 100 + Math.random() * 200;
       this.height = 100;
@@ -23,7 +23,7 @@
       this.animate();
     }
 
-    /** einfache Sammel-Animation */
+    /** Simple collection animation */
     animate() {
       setInterval(() => {
         this.playAnimation(this.IMAGES_COIN);

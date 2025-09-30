@@ -4,7 +4,7 @@
     constructor() {
       super();
 
-      // --- Maße/Physik ---
+      // --- Dimensions/Physics ---
       this.width = 150;
       this.height = 350;
       this.y = 90;
@@ -77,19 +77,19 @@
       this.sleep_sound   = new Audio('assets/audio/sleep.mp3');
       this.hurt_sound    = new Audio('assets/audio/aua.mp3');
 
-      // Geh-Sound: Loop + moderates Tempo
+      // Walking sound: loop + moderate playback speed
       this.walking_sound.loop = true;
       this.walking_sound.playbackRate = 1;
       this.walking_sound.volume = 0.6;
 
       // --- Idle/Action Timer ---
-      this.idleDelayMs   = 5000;           // 5s bis Long-Idle/Schlaf
-      this.lastActionAt  = Date.now();     // wird bei jeder Aktion erneuert
+      this.idleDelayMs   = 5000;           // 5s until Long-Idle/Sleep
+      this.lastActionAt  = Date.now();     // updated on every action
 
-      // Jump-Anim-Neustart-Flag (für Stomp)
+      // Jump animation restart flag (for Stomp)
       this._forceJumpRestart = false;
 
-      // --- Assets laden ---
+      // --- Load assets ---
       this.loadImage(this.IMAGES_WALKING[0]);
       [ this.IMAGES_WALKING,
         this.IMAGES_JUMPING,
@@ -108,12 +108,12 @@
     registerAction() { this.lastActionAt = Date.now(); }
     isIdleTimedOut() { return Date.now() - this.lastActionAt >= this.idleDelayMs; }
 
-    // ===== API: Sprung-Animation gezielt neu starten (z.B. beim Stomp) =====
+    // ===== API: Restart jump animation deliberately (e.g., on Stomp) =====
     restartJumpAnim() { this._forceJumpRestart = true; }
 
     // ===== Loops =====
     animate() {
-      // 60 FPS: Input/Bewegung/Kamera & Schritt-Sound steuern
+      // 60 FPS: control input/movement/camera & step sound
       setInterval(() => {
         this.updateWalkSound();
         this.handleMovement();
@@ -121,7 +121,7 @@
         if (this.world) this.world.camera_x = -this.x + 100;
       }, 1000 / 60);
 
-      // 10 FPS: Animations-Frames wechseln
+      // 10 FPS: switch animation frames
       setInterval(() => this.updateAnimation(), 100);
     }
 
@@ -130,26 +130,35 @@
       return !!(this.world?.keybord?.RIGHT || this.world?.keybord?.LEFT);
     }
 
-    playOnce(audio) {
-      if (!this.world?.sound) return;
-      audio.currentTime = 0;
-      audio.play();
-    }
+playOnce(audio) {
+  if (!this.world?.sound) return;
+  audio.currentTime = 0;
+  const playPromise = audio.play();
+  if (playPromise !== undefined) {
+    playPromise.catch(error => {
+    });
+  }
+}
 
-    // ===== Soundsteuerung (langsamer Geh-Loop) =====
+    // ===== Sound control (slow walking loop) =====
     updateWalkSound() {
       if (!this.world?.sound) {
         this.walking_sound.pause();
         return;
       }
-      if (this.isMoving && !this.isAboveGround()) {
-        if (this.walking_sound.paused) this.walking_sound.play();
-      } else {
+if (this.isMoving && !this.isAboveGround()) {
+  if (this.walking_sound.paused) {
+    const playPromise = this.walking_sound.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {}); // silently ignore errors
+    }
+  }
+} else {
         this.walking_sound.pause();
       }
     }
 
-    // ===== Animations-Automat =====
+    // ===== Animation automaton =====
     updateAnimation() {
       if (this.isDead()) {
         this.playDeadAnimation();
@@ -161,7 +170,7 @@
         return;
       }
 
-      // In der Luft -> immer Sprung-Frames, niemals Idle/Schlaf
+      // In the air -> always jump frames, never idle/sleep
       if (this.isAboveGround()) {
         if (this._forceJumpRestart) {
           this.currentImage = 0;
@@ -171,7 +180,7 @@
         return;
       }
 
-      // Am Boden:
+      // On the ground:
       if (this.isMoving) {
         this.registerAction();
         this.playAnimation(this.IMAGES_WALKING);
@@ -179,12 +188,16 @@
         return;
       }
 
-      // Stillstand am Boden -> Idle/Long-Idle nach Timeout
-      this.playAnimation(this.IMAGES_STAND);
-      if (this.isIdleTimedOut()) {
-        this.playAnimation(this.IMAGES_LONGSTAND);
-        if (this.world?.sound) this.sleep_sound.play();
+      // Standing still on the ground -> Idle/Long-Idle after timeout
+if (this.isIdleTimedOut()) {
+  this.playAnimation(this.IMAGES_LONGSTAND);
+  if (this.world?.sound && this.sleep_sound.paused) {
+      const playPromise = this.sleep_sound.play();
+      if (playPromise !== undefined) {
+          playPromise.catch(error => {}); // silently ignore errors
       }
+  }
+}
     }
 
     playDeadAnimation() {
@@ -195,7 +208,7 @@
       }
     }
 
-    // ===== Bewegung / Eingaben =====
+    // ===== Movement / Inputs =====
     handleMovement() {
       if (this.canMoveRight()) { this.moveRight(); this.registerAction(); }
       if (this.canMoveLeft())  { this.moveLeft();  this.registerAction(); }
@@ -204,7 +217,7 @@
 
     triggerJump() {
       this.playOnce(this.jump_sound);
-      this.currentImage = 0;     // Sprungframes „frisch“ anfangen
+      this.currentImage = 0;     // start jump frames “fresh”
       this.jump();
       this.registerAction();
       this.sleep_sound.pause();
@@ -215,7 +228,7 @@
         this.walking_sound.play();
       }
       super.moveRight();
-      this.otherDiretion = false; // (Kompatibilität)
+      this.otherDiretion = false; // (compatibility)
     }
 
     moveLeft() {
@@ -223,7 +236,7 @@
         this.walking_sound.play();
       }
       super.moveLeft();
-      this.otherDiretion = true; // (Kompatibilität)
+      this.otherDiretion = true; // (compatibility)
     }
 
     // ===== Permissions =====
@@ -231,7 +244,7 @@
     canMoveRight()  { const endX = this.world?.level?.level_end_x ?? Infinity; return !!this.world?.keybord?.RIGHT && this.x < endX; }
     canMoveLeft()   { return !!this.world?.keybord?.LEFT && this.x > -1330; }
 
-    // ===== Aktionen =====
+    // ===== Actions =====
     jump() { this.speedY = 30; }
 
     blockThrowLeft() {
